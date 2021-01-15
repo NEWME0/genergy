@@ -1,10 +1,12 @@
 # genergy
 
+Description...
 
 # Instalation
 
-- install python3.6
-- clone repository
-- run command `python manage.py makemigrations`
-- run command `python manage.py migrate`
-- run command `python manage.py runserver`
+1. Install python3
+2. Clone repository
+3. `pip install -r requirements.txt` (in console)
+4. `python manage.py makemigrations` (in console)
+5. `python manage.py migrate` (in console)
+6. `python manage.py runserver` (in console)
