@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -30,9 +30,7 @@ INSTALLED_APPS = [
     'polymorphic',
 
     # Local applications
-    'app_auth',
-    'app_deposit',
-    'app_service',
+
 ]
 
 MIDDLEWARE = [
@@ -104,4 +102,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Custom user model
-AUTH_USER_MODEL = 'app_auth.User'
+# AUTH_USER_MODEL = 'app_users.User'
