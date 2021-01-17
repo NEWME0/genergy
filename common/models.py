@@ -1,3 +1,14 @@
-from django.db import models
+from django.contrib.auth import get_user_model
+from django.db.models import *
 
-# Create your models here.
+
+class BaseModel(Model):
+    """
+        Base model.
+    """
+
+    date_created = DateTimeField(auto_now_add=True)
+    date_updated = DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True

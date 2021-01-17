@@ -15,6 +15,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -23,9 +25,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'polymorphic',
+    # Third party applications
     'rest_framework',
+    'polymorphic',
 
+    # Local applications
+    'app_auth',
     'app_deposit',
     'app_service',
 ]
@@ -97,3 +102,6 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
+
+# Custom user model
+AUTH_USER_MODEL = 'app_auth.User'
