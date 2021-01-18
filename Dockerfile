@@ -13,6 +13,8 @@ WORKDIR /usr/app
 COPY . /usr/app
 RUN python -m pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
+RUN python manage.py migrate
+RUN python manage.py loaddata dumpdata.json
 
 # Expose ports.
 EXPOSE 8025
