@@ -30,7 +30,9 @@ INSTALLED_APPS = [
     'polymorphic',
 
     # Local applications
-
+    'app_auth',
+    'app_contracts',
+    'app_inventory',
 ]
 
 MIDDLEWARE = [
