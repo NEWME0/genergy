@@ -27,11 +27,11 @@ INSTALLED_APPS = [
 
     # Third party applications
     'rest_framework',
+    'django_filters',
     'polymorphic',
 
     # Local applications
-    'app_auth',
-    'app_contracts',
+    'app_users',
     'app_inventory',
 ]
 
