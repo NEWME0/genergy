@@ -4,15 +4,20 @@ from rest_framework.viewsets import ModelViewSet
 from app_inventory.filtersets import MaterialFilterSet, InstrumentFilterSet
 from app_inventory.models import Material, Instrument
 from app_inventory.pagination import MaterialPagination, InstrumentPagination
-from app_inventory.serializers import MaterialSerializer, InstrumentSerializer
+from app_inventory.serializers import MaterialSerializer, MaterialListSerializer, \
+    InstrumentSerializer, InstrumentListSerializer
 
 
 class MaterialViewSet(ModelViewSet):
     queryset = Material.objects.all()
-    serializer_class = MaterialSerializer
     pagination_class = MaterialPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = MaterialFilterSet
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return MaterialListSerializer
+        return MaterialSerializer
 
     def list(self, request, *args, **kwargs):
         return super(MaterialViewSet, self).list(request, *args, **kwargs)
@@ -39,6 +44,11 @@ class InstrumentViewSet(ModelViewSet):
     pagination_class = InstrumentPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = InstrumentFilterSet
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return InstrumentListSerializer
+        return InstrumentSerializer
 
     def list(self, request, *args, **kwargs):
         return super(InstrumentViewSet, self).list(request, *args, **kwargs)
