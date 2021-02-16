@@ -3,14 +3,14 @@ from rest_framework.viewsets import ModelViewSet
 
 from app_inventory.filtersets import MaterialFilterSet, InstrumentFilterSet
 from app_inventory.models import Material, Instrument
-from app_inventory.pagination import MaterialPagination, InstrumentPagination
+from app_inventory.pagination import DefaultPagination
 from app_inventory.serializers import MaterialSerializer, MaterialListSerializer, \
     InstrumentSerializer, InstrumentListSerializer
 
 
 class MaterialViewSet(ModelViewSet):
     queryset = Material.objects.all()
-    pagination_class = MaterialPagination
+    pagination_class = DefaultPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = MaterialFilterSet
 
@@ -41,7 +41,7 @@ class MaterialViewSet(ModelViewSet):
 class InstrumentViewSet(ModelViewSet):
     queryset = Instrument.objects.all()
     serializer_class = InstrumentSerializer
-    pagination_class = InstrumentPagination
+    pagination_class = DefaultPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = InstrumentFilterSet
 
