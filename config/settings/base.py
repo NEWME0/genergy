@@ -49,13 +49,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_HEADERS = default_headers + [
+CORS_ALLOW_HEADERS = list(default_headers) + [
 
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_ALLOW_METHODS = default_methods + ['HEAD']
+CORS_ALLOW_METHODS = list(default_methods) + ['HEAD']
 
 ROOT_URLCONF = 'config.urls'
 
