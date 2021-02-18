@@ -1,4 +1,6 @@
 from pathlib import Path
+from corsheaders.defaults import default_headers
+from corsheaders.defaults import default_methods
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -47,17 +49,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
+CORS_ALLOW_HEADERS = default_headers + [
+
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_METHODS = default_methods + ['HEAD']
 
 ROOT_URLCONF = 'config.urls'
 
