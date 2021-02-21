@@ -34,8 +34,9 @@ INSTALLED_APPS = [
     'polymorphic',
 
     # Local applications
-    'app_users',
-    'app_inventory',
+    'app_accounts',
+    'app_entities',
+    'app_projects',
 ]
 
 MIDDLEWARE = [
@@ -114,6 +115,3 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
-
-# Custom user model
-# AUTH_USER_MODEL = 'app_users.User'
