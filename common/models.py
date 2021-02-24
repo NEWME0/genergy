@@ -1,5 +1,5 @@
-from django.db.models import Model, DateTimeField
 from django.utils import timezone
+from django.db.models import Model, DateTimeField
 
 from common.manages import BaseManager
 
