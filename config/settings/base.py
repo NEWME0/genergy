@@ -20,6 +20,8 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
+    'app_accounts',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -34,7 +36,6 @@ INSTALLED_APPS = [
     'polymorphic',
 
     # Local applications
-    'app_accounts',
     'app_entities',
     'app_projects',
 ]
@@ -115,3 +116,5 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
+
+AUTH_USER_MODEL = 'app_accounts.User'
