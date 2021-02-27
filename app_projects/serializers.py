@@ -37,7 +37,7 @@ class ProjectSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = '__all__'
+        exclude = ['deleted_at']
 
     def create(self, validated_data: dict):
         exercises_data = validated_data.pop('exercises', [])
