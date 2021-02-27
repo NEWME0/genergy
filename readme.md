@@ -3,7 +3,7 @@
 
 `python manage.py migrate` - create database tables \
 `python manage.py loaddata dumpdata.json` - load default fixture \
-`python manage.py runserver --settings=config.development` - run application \
+`python manage.py runserver --settings=config.settings.development` - run application
 
 
 # API
