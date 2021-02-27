@@ -1,12 +1,11 @@
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import AllowAny, AND, OR
 from rest_framework.viewsets import ModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
 
 from common.pagination import DefaultPagination
+from common.permissions import IsSuperUser, IsAdminUser, IsStaffUser, IsAgentUser, ReadOnly
 from app_entities.models import Item, Util, Work
 from app_entities.filtersets import ItemFilterSet, UtilFilterSet, WorkFilterSet
 from app_entities.serializers import ItemSerializer, UtilSerializer, WorkSerializer
-from common.permissions import IsSuperUser, IsAdminUser, IsStaffUser, IsAgentUser, ReadOnly
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -17,7 +16,9 @@ class ItemViewSet(ModelViewSet):
     pagination_class = DefaultPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = ItemFilterSet
-    permission_classes = [AllowAny]  # Todo: update permissions
+    permission_classes = [
+        IsAuthenticated and (IsSuperUser or IsAdminUser or (ReadOnly and (IsStaffUser or IsAgentUser)))
+    ]
 
 
 class UtilViewSet(ModelViewSet):
@@ -26,7 +27,9 @@ class UtilViewSet(ModelViewSet):
     pagination_class = DefaultPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = UtilFilterSet
-    permission_classes = [AllowAny]  # Todo: update permissions
+    permission_classes = [
+        IsAuthenticated and (IsSuperUser or IsAdminUser or (ReadOnly and (IsStaffUser or IsAgentUser)))
+    ]
 
 
 class WorkViewSet(ModelViewSet):
