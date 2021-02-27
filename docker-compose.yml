@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    restart: always
+    command: python manage.py runserver 0.0.0.0:8025 --settings=config.settings.development
+    networks:
+      docker_network_custom_ge001:
+        ipv4_address: 172.31.1.1
+    volumes:
+      - .:/usr/app/
+    ports:
+      - 8025:8025
+
+
+networks:
+  docker_network_custom_ge001:
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.31.0.0/16
