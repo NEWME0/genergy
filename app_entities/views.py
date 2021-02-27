@@ -1,6 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 
+from app_entities.mixins import SupplyMixin, AffordMixin
 from common.pagination import DefaultPagination
 from common.permissions import IsSuperUser, IsAdminUser, IsStaffUser, IsAgentUser, ReadOnly
 from app_entities.models import Item, Util, Work
@@ -10,7 +11,7 @@ from app_entities.serializers import ItemSerializer, UtilSerializer, WorkSeriali
 from rest_framework.permissions import IsAuthenticated
 
 
-class ItemViewSet(ModelViewSet):
+class ItemViewSet(SupplyMixin, AffordMixin, ModelViewSet):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
     pagination_class = DefaultPagination
@@ -21,7 +22,7 @@ class ItemViewSet(ModelViewSet):
     ]
 
 
-class UtilViewSet(ModelViewSet):
+class UtilViewSet(SupplyMixin, AffordMixin, ModelViewSet):
     queryset = Util.objects.all()
     serializer_class = UtilSerializer
     pagination_class = DefaultPagination
