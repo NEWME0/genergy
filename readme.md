@@ -16,6 +16,9 @@ Application is deployed on [Heroku](https://genergy-backend.herokuapp.com/). Vis
 | Path                                  | Methods          | Description                                         |
 | --------------------------------------|------------------|-----------------------------------------------------|
 | /admin/                               | GET              | Login admin site                                    |
+| /accounts/auth/login/                 | POST             | JWT authorization login                             |
+| /accounts/auth/verify/                | POST             | JWT authorization verify                            |
+| /accounts/auth/refresh/               | POST             | JWT authorization refresh                           |
 | /accounts/users/                      | GET, POST        | User list or create                                 |
 | /accounts/users/<int:pk>/             | GET, PUT, DELETE | User retrieve, update or delete                     |
 | /accounts/users/me/                   | GET              | User retrieve current                               |
