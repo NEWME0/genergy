@@ -1,9 +1,14 @@
 
-# Installation
+# Local installation
 
 `python manage.py migrate` - create database tables \
 `python manage.py loaddata dumpdata.json` - load default fixture \
 `python manage.py runserver --settings=config.settings.development` - run application
+
+
+# Heroku deployment
+
+Application is deployed on [Heroku](https://genergy-backend.herokuapp.com/). Visit link to access API.
 
 
 # API
