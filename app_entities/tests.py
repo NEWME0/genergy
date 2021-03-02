@@ -9,12 +9,12 @@ class WorkViewSetTestCase(TestCase):
     def setUp(self) -> None:
         self.work = Work.objects.create(title='test_work', price=0.0)
 
-        self.empty_user = User.objects.create_user(username='basic_user', password='password')
-        self.basic_user = User.objects.create_user(username='basic_user', password='password', is_basic_account=True)
-        self.agent_user = User.objects.create_user(username='agent_user', password='password', is_agent_account=True)
-        self.staff_user = User.objects.create_user(username='staff_user', password='password', is_staff_account=True)
-        self.admin_user = User.objects.create_user(username='admin_user', password='password', is_admin_account=True)
-        self.super_user = User.objects.create_superuser(username='super_user', password='password')
+        self.empty_user = User.objects.create_user(username='empty.user', password='password')
+        self.basic_user = User.objects.create_user(username='basic.user', password='password', is_basic_account=True)
+        self.agent_user = User.objects.create_user(username='agent.user', password='password', is_agent_account=True)
+        self.staff_user = User.objects.create_user(username='staff.user', password='password', is_staff_account=True)
+        self.admin_user = User.objects.create_user(username='admin.user', password='password', is_admin_account=True)
+        self.super_user = User.objects.create_superuser(username='super.user', password='password')
 
         self.guest_client = Client()
         self.empty_client = Client()

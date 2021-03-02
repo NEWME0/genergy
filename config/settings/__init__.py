@@ -20,8 +20,6 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
-    'app_accounts',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -36,6 +34,7 @@ INSTALLED_APPS = [
     'polymorphic',
 
     # Local applications
+    'app_accounts',
     'app_entities',
     'app_projects',
 ]
@@ -52,12 +51,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_HEADERS = list(default_headers) + [
-
-]
-
 CORS_ALLOW_ALL_ORIGINS = True
-
+CORS_ALLOW_HEADERS = list(default_headers) + []
 CORS_ALLOW_METHODS = list(default_methods) + ['HEAD']
 
 ROOT_URLCONF = 'config.urls'
