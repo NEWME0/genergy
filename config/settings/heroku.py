@@ -3,7 +3,7 @@ import dj_database_url
 
 from . import *
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['genergy-backend.herokuapp.com']
 

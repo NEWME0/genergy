@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'polymorphic',
+    'drf_spectacular',
 
     # Local applications
     'app_accounts',
@@ -116,7 +117,8 @@ AUTH_USER_MODEL = 'app_accounts.User'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SIMPLE_JWT = {
