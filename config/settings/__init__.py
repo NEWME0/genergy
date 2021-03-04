@@ -28,10 +28,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third party applications
+    'polymorphic',
     'corsheaders',
     'rest_framework',
     'django_filters',
-    'polymorphic',
     'drf_spectacular',
 
     # Local applications
