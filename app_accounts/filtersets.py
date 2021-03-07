@@ -1,5 +1,6 @@
-from django.contrib.auth import get_user_model
 from django_filters.rest_framework import FilterSet, OrderingFilter, BooleanFilter
+
+from app_accounts.models import User
 
 
 class UserFilterSet(FilterSet):
@@ -10,5 +11,5 @@ class UserFilterSet(FilterSet):
     is_basic = BooleanFilter(field_name='is_basic_account')
 
     class Meta:
-        model = get_user_model()
+        model = User
         fields = ['ordering']
