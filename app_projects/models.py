@@ -11,14 +11,14 @@ User = get_user_model()
 
 
 class ProjectState(TextChoices):
-    ACTIVE = 'ACTIVE', _('Active')
-    CLOSED = 'CLOSED', _('Closed')
-    SKETCH = 'SKETCH', _('Sketch')
+    OPEN = 'OPEN', _('Open')
+    DONE = 'DONE', _('Done')
+    HOLD = 'HOLD', _('Hold')
 
 
 class Project(BaseModel):
     title = CharField(max_length=255)
-    state = CharField(max_length=15, choices=ProjectState.choices, default=ProjectState.SKETCH)
+    state = CharField(max_length=15, choices=ProjectState.choices, default=ProjectState.HOLD)
     owner = ForeignKey(to=User, on_delete=PROTECT, related_name='own_projects')
 
     prepaid = FloatField(default=0)

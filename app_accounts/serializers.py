@@ -1,6 +1,7 @@
-from django.contrib.auth import get_user_model
 from rest_framework.fields import BooleanField, FloatField, IntegerField
 from rest_framework.serializers import ModelSerializer
+
+from app_accounts.models import User
 
 
 class UserSerializer(ModelSerializer):
@@ -13,7 +14,7 @@ class UserSerializer(ModelSerializer):
     agent_rate = IntegerField(min_value=0, max_value=100, default=10)
 
     class Meta:
-        model = get_user_model()
+        model = User
         fields = [
             'id', 'username', 'password',
             'fullname', 'gender', 'phone', 'idnp',
