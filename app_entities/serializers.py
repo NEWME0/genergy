@@ -16,10 +16,11 @@ class WorkSerializer(ModelSerializer):
 
 class ItemSerializer(ModelSerializer):
     price = FloatField(min_value=0)
+    sell_price = FloatField(min_value=0)
 
     class Meta:
         model = Item
-        fields = ['id', 'title', 'price', 'count']
+        fields = ['id', 'title', 'price', 'count', 'sell_price']
 
 
 class UtilSerializer(ModelSerializer):
@@ -60,7 +61,7 @@ class SupplySerializer(Serializer):
         raise NotImplementedError()
 
 
-class GivingSerializer(Serializer):
+class AffordSerializer(Serializer):
     count = IntegerField(min_value=0)
     user = PrimaryKeyRelatedField(queryset=get_user_model().objects.filter(is_agent_account=True))
 

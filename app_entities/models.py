@@ -25,10 +25,12 @@ class Item(BaseModel):
     title = CharField(max_length=255)
     price = FloatField(default=0)
     count = PositiveIntegerField(default=0)
+    sell_price = FloatField(default=0)
 
     class Meta:
         constraints = [
-            CheckConstraint(name='item_price', check=Q(price__gte=0))
+            CheckConstraint(name='item_price', check=Q(price__gte=0)),
+            CheckConstraint(name='item_sell_price', check=Q(price__gte=0))
         ]
 
     def supply(self, count: int):

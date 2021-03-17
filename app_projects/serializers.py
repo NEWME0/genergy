@@ -1,3 +1,4 @@
+from rest_framework.fields import FloatField, DurationField
 from rest_framework.serializers import ModelSerializer
 
 from app_projects.models import Project, ProjectExercise, ProjectExecutor, ProjectMaterial
@@ -31,9 +32,14 @@ class ProjectMaterialSerializer(ModelSerializer):
 
 
 class ProjectSerializer(ModelSerializer):
-    exercises = ProjectExerciseSerializer(many=True)
-    executors = ProjectExecutorSerializer(many=True)
-    materials = ProjectMaterialSerializer(many=True)
+    exercises = ProjectExerciseSerializer(many=True, default=[])
+    executors = ProjectExecutorSerializer(many=True, default=[])
+    materials = ProjectMaterialSerializer(many=True, default=[])
+
+    total_price = FloatField(read_only=True)
+    materials_total_price = FloatField(read_only=True)
+    exercises_total_price = FloatField(read_only=True)
+    executors_total_hours = DurationField(read_only=True)
 
     class Meta:
         model = Project
@@ -66,6 +72,7 @@ class ProjectSerializer(ModelSerializer):
         executors_data = validated_data.pop('executors', [])
         materials_data = validated_data.pop('materials', [])
 
+        # Todo: update related
         print(exercises_data)
         print(executors_data)
         print(materials_data)

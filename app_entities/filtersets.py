@@ -1,11 +1,11 @@
-from django_filters.rest_framework import FilterSet
-from django_filters.rest_framework.filters import OrderingFilter
+from django_filters.rest_framework import FilterSet, OrderingFilter, CharFilter
 
 from app_entities.models import Item, Util, Work
 
 
 class ItemFilterSet(FilterSet):
     ordering = OrderingFilter(fields=['id'])
+    search = CharFilter(field_name='title', lookup_expr='icontains')
 
     class Meta:
         model = Item
@@ -14,6 +14,7 @@ class ItemFilterSet(FilterSet):
 
 class UtilFilterSet(FilterSet):
     ordering = OrderingFilter(fields=['id'])
+    search = CharFilter(field_name='title', lookup_expr='icontains')
 
     class Meta:
         model = Util
@@ -22,6 +23,7 @@ class UtilFilterSet(FilterSet):
 
 class WorkFilterSet(FilterSet):
     ordering = OrderingFilter(fields=['id'])
+    search = CharFilter(field_name='title', lookup_expr='icontains')
 
     class Meta:
         model = Work
