@@ -12,7 +12,7 @@ from app_projects.serializers import ProjectSerializer, \
 
 
 class ProjectViewSet(ModelViewSet):
-    queryset = Project.objects.all()
+    queryset = Project.objects.with_totals().all()
     serializer_class = ProjectSerializer
     pagination_class = DefaultPagination
     filter_backends = [DjangoFilterBackend]
