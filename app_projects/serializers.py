@@ -1,7 +1,11 @@
-from rest_framework.fields import FloatField, DurationField
+from rest_framework.fields import FloatField, DurationField, SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
 from app_projects.models import Project, ProjectExercise, ProjectExecutor, ProjectMaterial
+
+
+def discounted(price: float, discount: int) -> float:
+    return (price * (100 - discount)) / 100
 
 
 class ProjectExerciseSerializer(ModelSerializer):
@@ -36,10 +40,34 @@ class ProjectSerializer(ModelSerializer):
     executors = ProjectExecutorSerializer(many=True, default=[])
     materials = ProjectMaterialSerializer(many=True, default=[])
 
-    total_price = FloatField(read_only=True)
     materials_total_price = FloatField(read_only=True)
     exercises_total_price = FloatField(read_only=True)
     executors_total_hours = DurationField(read_only=True)
+
+    total_price = SerializerMethodField()
+    final_price = SerializerMethodField()
+    materials_final_price = SerializerMethodField()
+    exercises_final_price = SerializerMethodField()
+
+    @classmethod
+    def get_materials_final_price(cls, instance: Project):
+        if hasattr(instance, 'materials_total_price'):
+            return discounted(instance.materials_total_price, instance.discount)
+
+    @classmethod
+    def get_exercises_final_price(cls, instance: Project):
+        if hasattr(instance, 'exercises_total_price'):
+            return discounted(instance.exercises_total_price, instance.discount)
+
+    @classmethod
+    def get_total_price(cls, instance: Project):
+        if hasattr(instance, 'exercises_total_price') and hasattr(instance, 'materials_total_price'):
+            return instance.exercises_total_price + instance.materials_total_price
+
+    @classmethod
+    def get_final_price(cls, instance: Project):
+        if hasattr(instance, 'exercises_total_price') and hasattr(instance, 'materials_total_price'):
+            return discounted(instance.exercises_total_price + instance.materials_total_price, instance.discount)
 
     class Meta:
         model = Project
