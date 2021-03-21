@@ -69,7 +69,6 @@ class ProjectQuerySet(QuerySet):
             exercises_total_price=Subquery(exercises_total_price),
             materials_total_price=Subquery(materials_total_price),
             executors_total_hours=Subquery(executors_total_hours),
-            total_price=F('exercises_total_price') + F('materials_total_price')
         )
 
 
