@@ -82,6 +82,7 @@ class Project(BaseModel):
 
     prepaid = FloatField(default=0)
     discount = IntegerField(default=0)
+    date_ending = DateTimeField(default=None, null=True)
 
     class Meta:
         constraints = [
