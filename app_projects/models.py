@@ -75,7 +75,7 @@ class ProjectQuerySet(QuerySet):
 class Project(BaseModel):
     objects = ProjectQuerySet.as_manager()
 
-    title = CharField(max_length=255)
+    title = CharField(max_length=255, unique=True)
     state = CharField(max_length=15, choices=ProjectState.choices, default=ProjectState.HOLD)
     owner = ForeignKey(to=User, on_delete=PROTECT, related_name='own_projects')
 
