@@ -1,6 +1,8 @@
 from rest_framework.fields import FloatField, DurationField, SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
+from app_accounts.models import User
+from app_entities.models import Work, Item
 from app_projects.models import Project, ProjectExercise, ProjectExecutor, ProjectMaterial
 
 
@@ -8,7 +10,30 @@ def discounted(price: float, discount: int) -> float:
     return (price * (100 - discount)) / 100
 
 
+class ProjectWorkSerializer(ModelSerializer):
+    class Meta:
+        model = Work
+        fields = ['id', 'title']
+
+
+class ProjectItemSerializer(ModelSerializer):
+    class Meta:
+        model = Item
+        fields = ['id', 'title']
+
+
+class ProjectUserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'fullname']
+
+
 class ProjectExerciseSerializer(ModelSerializer):
+    def to_representation(self, instance: ProjectExercise):
+        data = super(ProjectExerciseSerializer, self).to_representation(instance)
+        data['work'] = ProjectWorkSerializer().to_representation(instance.work)
+        return data
+
     class Meta:
         model = ProjectExercise
         fields = ['id', 'project', 'work', 'count']
@@ -18,6 +43,11 @@ class ProjectExerciseSerializer(ModelSerializer):
 
 
 class ProjectExecutorSerializer(ModelSerializer):
+    def to_representation(self, instance: ProjectExecutor):
+        data = super(ProjectExecutorSerializer, self).to_representation(instance)
+        data['user'] = ProjectUserSerializer().to_representation(instance.user)
+        return data
+
     class Meta:
         model = ProjectExecutor
         fields = ['id', 'project', 'user', 'hours']
@@ -27,6 +57,11 @@ class ProjectExecutorSerializer(ModelSerializer):
 
 
 class ProjectMaterialSerializer(ModelSerializer):
+    def to_representation(self, instance: ProjectMaterial):
+        data = super(ProjectMaterialSerializer, self).to_representation(instance)
+        data['user'] = ProjectItemSerializer().to_representation(instance.item)
+        return data
+
     class Meta:
         model = ProjectMaterial
         fields = ['id', 'project', 'item', 'count']
@@ -68,6 +103,11 @@ class ProjectSerializer(ModelSerializer):
     def get_final_price(cls, instance: Project):
         if hasattr(instance, 'exercises_total_price') and hasattr(instance, 'materials_total_price'):
             return discounted(instance.exercises_total_price + instance.materials_total_price, instance.discount)
+
+    def to_representation(self, instance: Project):
+        data = super(ProjectSerializer, self).to_representation(instance)
+        data['owner'] = ProjectUserSerializer().to_representation(instance.owner)
+        return data
 
     class Meta:
         model = Project
