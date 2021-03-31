@@ -1,6 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import AllowAny
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_nested.viewsets import NestedViewSetMixin
 
 from common.pagination import DefaultPagination
@@ -63,3 +63,21 @@ class ProjectMaterialViewSet(NestedViewSetMixin, ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(project_id=self.kwargs.get('project_pk'))
+
+
+class UserOwnProjectViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [
+        IsAuthenticated
+    ]
+    parent_lookup_kwargs = {'user_pk': 'owner'}
+
+
+class UserExeProjectViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [
+        IsAuthenticated
+    ]
+    parent_lookup_kwargs = {'user_pk': 'executors__user'}

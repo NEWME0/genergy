@@ -2,8 +2,6 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_nested.viewsets import NestedViewSetMixin
 from django_filters.rest_framework import DjangoFilterBackend
 
-from app_projects.models import Project
-from app_projects.serializers import ProjectSerializer
 from common.pagination import DefaultPagination
 from common.permissions import IsSuperUser, IsAdminUser, IsStaffUser, IsAgentUser, ReadOnly
 from app_entities.mixins import SupplyMixin, AffordMixin
@@ -64,12 +62,3 @@ class UserUtilViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
         IsAuthenticated
     ]
     parent_lookup_kwargs = {'user_pk': 'user__pk'}
-
-
-class UserOwnProjectViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [
-        IsAuthenticated
-    ]
-    parent_lookup_kwargs = {'user_pk': 'owner'}
