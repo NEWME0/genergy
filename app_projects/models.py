@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.db.models import *
 from django.db.models.aggregates import Sum
 from django.contrib.auth import get_user_model
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 
 from app_entities.models import Item, Work
@@ -66,9 +67,9 @@ class ProjectQuerySet(QuerySet):
         ).values('total')
 
         return self.order_by().annotate(
-            exercises_total_price=Subquery(exercises_total_price),
-            materials_total_price=Subquery(materials_total_price),
-            executors_total_hours=Subquery(executors_total_hours),
+            exercises_total_price=Coalesce(Subquery(exercises_total_price), 0),
+            materials_total_price=Coalesce(Subquery(materials_total_price), 0),
+            executors_total_hours=Coalesce(Subquery(executors_total_hours), 0),
         )
 
 
