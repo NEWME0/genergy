@@ -69,7 +69,7 @@ class ProjectQuerySet(QuerySet):
         return self.order_by().annotate(
             exercises_total_price=Coalesce(exercises_total_price, Value(0.0)),
             materials_total_price=Coalesce(materials_total_price, Value(0.0)),
-            executors_total_hours=Coalesce(executors_total_hours, Value(0.0)),
+            executors_total_hours=Coalesce(executors_total_hours, Value(timedelta(), output_field=DurationField())),
         )
 
 
