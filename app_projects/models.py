@@ -67,9 +67,9 @@ class ProjectQuerySet(QuerySet):
         ).values('total')
 
         return self.order_by().annotate(
-            exercises_total_price=Coalesce(Subquery(exercises_total_price), 0),
-            materials_total_price=Coalesce(Subquery(materials_total_price), 0),
-            executors_total_hours=Coalesce(Subquery(executors_total_hours), 0),
+            exercises_total_price=Coalesce(exercises_total_price, Value(0.0)),
+            materials_total_price=Coalesce(materials_total_price, Value(0.0)),
+            executors_total_hours=Coalesce(executors_total_hours, Value(0.0)),
         )
 
 
