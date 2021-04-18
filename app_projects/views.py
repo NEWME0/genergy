@@ -66,7 +66,7 @@ class ProjectMaterialViewSet(NestedViewSetMixin, ModelViewSet):
 
 
 class UserOwnProjectViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
-    queryset = Project.objects.all()
+    queryset = Project.objects.with_totals().all()
     serializer_class = ProjectSerializer
     permission_classes = [
         IsAuthenticated
@@ -75,7 +75,7 @@ class UserOwnProjectViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
 
 
 class UserExeProjectViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
-    queryset = Project.objects.all()
+    queryset = Project.objects.with_totals().all()
     serializer_class = ProjectSerializer
     permission_classes = [
         IsAuthenticated

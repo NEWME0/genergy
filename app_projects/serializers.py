@@ -13,13 +13,13 @@ def discounted(price: float, discount: int) -> float:
 class ProjectWorkSerializer(ModelSerializer):
     class Meta:
         model = Work
-        fields = ['id', 'title']
+        fields = ['id', 'title', 'price']
 
 
 class ProjectItemSerializer(ModelSerializer):
     class Meta:
         model = Item
-        fields = ['id', 'title']
+        fields = ['id', 'title', 'price']
 
 
 class ProjectUserSerializer(ModelSerializer):
@@ -29,6 +29,17 @@ class ProjectUserSerializer(ModelSerializer):
 
 
 class ProjectExerciseSerializer(ModelSerializer):
+    total_price = SerializerMethodField()
+    final_price = SerializerMethodField()
+
+    @classmethod
+    def get_total_price(cls, instance: ProjectExercise):
+        return instance.count * instance.work.price
+
+    @classmethod
+    def get_final_price(cls, instance: ProjectExercise):
+        return discounted(instance.count * instance.work.price, instance.project.discount)
+
     def to_representation(self, instance: ProjectExercise):
         data = super(ProjectExerciseSerializer, self).to_representation(instance)
         data['work'] = ProjectWorkSerializer().to_representation(instance.work)
@@ -36,7 +47,32 @@ class ProjectExerciseSerializer(ModelSerializer):
 
     class Meta:
         model = ProjectExercise
-        fields = ['id', 'project', 'work', 'count']
+        fields = ['id', 'project', 'work', 'count', 'total_price', 'final_price']
+        extra_kwargs = {
+            'project': {'read_only': True}
+        }
+
+
+class ProjectMaterialSerializer(ModelSerializer):
+    total_price = SerializerMethodField()
+    final_price = SerializerMethodField()
+
+    @classmethod
+    def get_total_price(cls, instance: ProjectMaterial):
+        return instance.count * instance.item.price
+
+    @classmethod
+    def get_final_price(cls, instance: ProjectMaterial):
+        return discounted(instance.count * instance.item.price, instance.project.discount)
+
+    def to_representation(self, instance: ProjectMaterial):
+        data = super(ProjectMaterialSerializer, self).to_representation(instance)
+        data['user'] = ProjectItemSerializer().to_representation(instance.item)
+        return data
+
+    class Meta:
+        model = ProjectMaterial
+        fields = ['id', 'project', 'item', 'count', 'total_price', 'final_price']
         extra_kwargs = {
             'project': {'read_only': True}
         }
@@ -51,20 +87,6 @@ class ProjectExecutorSerializer(ModelSerializer):
     class Meta:
         model = ProjectExecutor
         fields = ['id', 'project', 'user', 'hours']
-        extra_kwargs = {
-            'project': {'read_only': True}
-        }
-
-
-class ProjectMaterialSerializer(ModelSerializer):
-    def to_representation(self, instance: ProjectMaterial):
-        data = super(ProjectMaterialSerializer, self).to_representation(instance)
-        data['user'] = ProjectItemSerializer().to_representation(instance.item)
-        return data
-
-    class Meta:
-        model = ProjectMaterial
-        fields = ['id', 'project', 'item', 'count']
         extra_kwargs = {
             'project': {'read_only': True}
         }
