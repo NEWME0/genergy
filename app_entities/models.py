@@ -71,6 +71,7 @@ class Util(BaseModel):
             self.save()
 
 
+# Todo: remove
 class UserItem(BaseModel):
     item = ForeignKey(to=Item, on_delete=PROTECT, related_name='in_use')
     user = ForeignKey(to=User, on_delete=PROTECT, related_name='items')
@@ -82,6 +83,7 @@ class UserItem(BaseModel):
         ]
 
 
+# Todo: remove this model
 class UserUtil(BaseModel):
     util = ForeignKey(to=Util, on_delete=PROTECT, related_name='in_use')
     user = ForeignKey(to=User, on_delete=PROTECT, related_name='utils')
@@ -91,3 +93,15 @@ class UserUtil(BaseModel):
         constraints = [
             UniqueConstraint(name='unique_user_util', fields=['util', 'user'])
         ]
+
+
+class ItemUserAttachment(BaseModel):
+    item = ForeignKey(to=Item, on_delete=PROTECT, related_name='user_attachment_set')
+    user = ForeignKey(to=User, on_delete=PROTECT, related_name='item_attachment_set')
+    count = PositiveIntegerField(default=0)
+
+
+class UtilUserAttachment(BaseModel):
+    util = ForeignKey(to=Util, on_delete=PROTECT, related_name='user_attachment_set')
+    user = ForeignKey(to=User, on_delete=PROTECT, related_name='util_attachment_set')
+    count = PositiveIntegerField(default=0)
