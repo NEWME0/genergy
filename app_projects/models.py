@@ -12,6 +12,12 @@ from common.models import BaseModel
 User = get_user_model()
 
 
+class ItemProjectAttachment(BaseModel):
+    item = ForeignKey(to=Item, on_delete=PROTECT, related_name='project_attachment_set')
+    project = ForeignKey(to='Project', on_delete=CASCADE, related_name='item_attachment_set')
+    count = PositiveIntegerField(default=0)
+
+
 class ProjectExercise(BaseModel):
     project = ForeignKey(to='Project', on_delete=CASCADE, related_name='exercises')
     work = ForeignKey(to=Work, on_delete=PROTECT)

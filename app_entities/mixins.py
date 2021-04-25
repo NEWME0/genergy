@@ -1,43 +1,29 @@
-from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.request import Request
+from rest_framework import status
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
 
-from app_entities.serializers import SupplySerializer, AffordSerializer
-from common.permissions import IsSuperUser, IsAdminUser, IsStaffUser
-
-
-class SupplyMixin:
-    @action(
-        methods=['POST'], detail=True, url_path='supply', url_name='item-supply',
-        permission_classes=[IsAuthenticated & (IsSuperUser | IsAdminUser | IsStaffUser)],
-        serializer_class=SupplySerializer
-    )
-    def supply(self, request: Request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        supply_count = serializer.validated_data['count']
-        instance = self.get_object()
-        instance.supply(count=supply_count)
-        return Response()
+from app_accounts.models import User
 
 
-class AffordMixin:
-    @action(
-        methods=['POST'], detail=True, url_path='afford', url_name='item-afford',
-        permission_classes=[IsAuthenticated & (IsSuperUser | IsAdminUser | IsStaffUser)],
-        serializer_class=AffordSerializer
-    )
-    def afford(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        afford_count = serializer.validated_data['count']
-        afford_user = serializer.validated_data['user']
+class ListCreateModelMixin(GenericViewSet):
+    def get_queryset(self):
+        return self.queryset.filter(user_id=self.kwargs.get('user_pk'))
 
-        instance = self.get_object()
-        if afford_count > instance.count:
-            raise ValidationError(f'Can not afford ({afford_count}) more than have ({instance.count}).')
+    def get_serializer_context(self):
+        context = super(ListCreateModelMixin, self).get_serializer_context()
+        context['user'] = get_object_or_404(User, id=self.kwargs.get('user_pk'))
+        return context
 
-        instance.afford(count=afford_count, user=afford_user)
-        return Response()
+    def create(self, request, *args, **kwargs):
+        request_data = request.data if isinstance(request.data, list) else [request.data]
+        serializers = [self.get_serializer(data=data) for data in request_data]
+        are_valid = [s.is_valid(raise_exception=False) for s in serializers]
+
+        if all(are_valid):
+            values = [s.save() for s in serializers]
+            return Response({}, status=status.HTTP_201_CREATED)
+
+        else:
+            errors = [s.errors for s in serializers]
+            return Response(errors, status.HTTP_400_BAD_REQUEST)
