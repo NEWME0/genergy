@@ -1,25 +1,18 @@
+from collections import OrderedDict
+from typing import Union
+
+from django.db import transaction
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import FloatField, DurationField, SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
 from app_accounts.models import User
-from app_entities.models import Work, Item
 from app_projects.models import Project, ProjectExercise, ProjectExecutor, ProjectMaterial
+from app_entities.serializers import WorkSerializer, ItemSerializer
 
 
 def discounted(price: float, discount: int) -> float:
     return (price * (100 - discount)) / 100
-
-
-class ProjectWorkSerializer(ModelSerializer):
-    class Meta:
-        model = Work
-        fields = ['id', 'title', 'price']
-
-
-class ProjectItemSerializer(ModelSerializer):
-    class Meta:
-        model = Item
-        fields = ['id', 'title', 'price']
 
 
 class ProjectUserSerializer(ModelSerializer):
@@ -42,12 +35,22 @@ class ProjectExerciseSerializer(ModelSerializer):
 
     def to_representation(self, instance: ProjectExercise):
         data = super(ProjectExerciseSerializer, self).to_representation(instance)
-        data['work'] = ProjectWorkSerializer().to_representation(instance.work)
+        data['work'] = WorkSerializer().to_representation(instance.work)
         return data
+
+    @transaction.atomic()
+    def create(self, validated_data):
+        instance, created = ProjectExercise.objects.get_or_create(
+            project=self.context['project'],
+            work=validated_data['work']
+        )
+        instance.count += validated_data['count']
+        instance.save()
+        return instance
 
     class Meta:
         model = ProjectExercise
-        fields = ['id', 'project', 'work', 'count', 'total_price', 'final_price']
+        fields = ['project', 'work', 'count', 'total_price', 'final_price']
         extra_kwargs = {
             'project': {'read_only': True}
         }
@@ -65,37 +68,77 @@ class ProjectMaterialSerializer(ModelSerializer):
     def get_final_price(cls, instance: ProjectMaterial):
         return discounted(instance.count * instance.item.price, instance.project.discount)
 
-    def to_representation(self, instance: ProjectMaterial):
+    def validate(self, attrs):
+        user_attachment = attrs['item'].user_attachment.filter(user=self.context['user']).first()
+        if getattr(user_attachment, 'count', 0) < attrs['count']:
+            raise ValidationError('Not enough items.')
+        return attrs
+
+    def to_representation(self, instance: Union[ProjectMaterial, OrderedDict]):
+        if isinstance(instance, OrderedDict):
+            instance = self.Meta.model.objects.get(
+                project=self.context['project'],
+                user=self.context['user'],
+                item=instance['item'],
+            )
+
         data = super(ProjectMaterialSerializer, self).to_representation(instance)
-        data['user'] = ProjectItemSerializer().to_representation(instance.item)
+        item = getattr(instance, 'item', None)
+        data['item'] = ItemSerializer().to_representation(item)
         return data
+
+    @transaction.atomic()
+    def create(self, validated_data):
+        instance, created = ProjectMaterial.objects.get_or_create(
+            project=self.context['project'],
+            user=self.context['user'],
+            item=validated_data['item']
+        )
+        instance.count += validated_data['count']
+        instance.save()
+        user_attachment = instance.item.user_attachment.get(user=self.context['user'])
+        user_attachment.count -= validated_data['count']
+        user_attachment.save()
+        return instance
 
     class Meta:
         model = ProjectMaterial
-        fields = ['id', 'project', 'item', 'count', 'total_price', 'final_price']
+        fields = ['project', 'item', 'user', 'count', 'total_price', 'final_price']
         extra_kwargs = {
-            'project': {'read_only': True}
+            'project': {'read_only': True},
+            'user': {'read_only': True}
         }
 
 
 class ProjectExecutorSerializer(ModelSerializer):
-    def to_representation(self, instance: ProjectExecutor):
+    def to_representation(self, instance: Union[ProjectExecutor, OrderedDict]):
         data = super(ProjectExecutorSerializer, self).to_representation(instance)
-        data['user'] = ProjectUserSerializer().to_representation(instance.user)
+        user = getattr(instance, 'user', None) or instance['user']
+        data['user'] = ProjectUserSerializer().to_representation(user)
         return data
+
+    @transaction.atomic()
+    def create(self, validated_data):
+        instance, created = ProjectExecutor.objects.get_or_create(
+            project=self.context['project'],
+            user=validated_data['user']
+        )
+        instance.hours += validated_data['hours']
+        instance.save()
+        return instance
 
     class Meta:
         model = ProjectExecutor
-        fields = ['id', 'project', 'user', 'hours']
+        fields = ['project', 'user', 'hours']
         extra_kwargs = {
             'project': {'read_only': True}
         }
 
 
 class ProjectSerializer(ModelSerializer):
-    exercises = ProjectExerciseSerializer(many=True, default=[])
-    executors = ProjectExecutorSerializer(many=True, default=[])
-    materials = ProjectMaterialSerializer(many=True, default=[])
+    exercises = ProjectExerciseSerializer(many=True, default=[], read_only=True)
+    executors = ProjectExecutorSerializer(many=True, default=[], read_only=True)
+    materials = ProjectMaterialSerializer(many=True, default=[], read_only=True)
 
     materials_total_price = FloatField(read_only=True)
     exercises_total_price = FloatField(read_only=True)
@@ -126,6 +169,14 @@ class ProjectSerializer(ModelSerializer):
         if hasattr(instance, 'exercises_total_price') and hasattr(instance, 'materials_total_price'):
             return discounted(instance.exercises_total_price + instance.materials_total_price, instance.discount)
 
+    def create(self, validated_data):
+        validated_data['owner'] = self.context['owner']
+        return super(ProjectSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data['owner'] = instance.owner
+        return super(ProjectSerializer, self).update(instance, validated_data)
+
     def to_representation(self, instance: Project):
         data = super(ProjectSerializer, self).to_representation(instance)
         data['owner'] = ProjectUserSerializer().to_representation(instance.owner)
@@ -134,40 +185,6 @@ class ProjectSerializer(ModelSerializer):
     class Meta:
         model = Project
         exclude = ['deleted_at']
-
-    def create(self, validated_data: dict):
-        exercises_data = validated_data.pop('exercises', [])
-        executors_data = validated_data.pop('executors', [])
-        materials_data = validated_data.pop('materials', [])
-
-        # Create project
-        instance: Project = super(ProjectSerializer, self).create(validated_data)
-
-        # Create list of exercises
-        exercises = [ProjectExercise(project=instance, **data) for data in exercises_data]
-        instance.exercises.bulk_create(exercises)
-
-        # Create list of executors
-        executors = [ProjectExecutor(project=instance, **data) for data in executors_data]
-        instance.executors.bulk_create(executors)
-
-        # Create list of materials
-        materials = [ProjectMaterial(project=instance, **data) for data in materials_data]
-        instance.materials.bulk_create(materials)
-
-        return instance
-
-    def update(self, instance: Project, validated_data: dict):
-        exercises_data = validated_data.pop('exercises', [])
-        executors_data = validated_data.pop('executors', [])
-        materials_data = validated_data.pop('materials', [])
-
-        # Todo: update related
-        print(exercises_data)
-        print(executors_data)
-        print(materials_data)
-
-        # Update project
-        instance: Project = super(ProjectSerializer, self).update(instance, validated_data)
-
-        return instance
+        extra_kwargs = {
+            'owner': {'read_only': True}
+        }
