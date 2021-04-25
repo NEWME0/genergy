@@ -10,6 +10,16 @@ from common.models import BaseModel
 User = get_user_model()
 
 
+class ItemQuerySet(QuerySet):
+    def with_attached_to_user(self):
+        return self.annotate(attached_to_user=Sum('user_attachment__count'))
+
+
+class UtilQuerySet(QuerySet):
+    def with_attached_to_user(self):
+        return self.annotate(attached_to_user=Sum('user_attachment__count'))
+
+
 class Work(BaseModel):
     title = CharField(max_length=255)
     price = FloatField(default=0)
@@ -21,6 +31,8 @@ class Work(BaseModel):
 
 
 class Item(BaseModel):
+    objects = ItemQuerySet.as_manager()
+
     title = CharField(max_length=255)
     price = FloatField(default=0)
     count = PositiveIntegerField(default=0)
@@ -34,6 +46,8 @@ class Item(BaseModel):
 
 
 class Util(BaseModel):
+    objects = UtilQuerySet.as_manager()
+
     title = CharField(max_length=255)
     price = FloatField(default=0)
     count = PositiveIntegerField(default=0)
@@ -44,9 +58,19 @@ class Util(BaseModel):
         ]
 
 
+class ItemSupply(BaseModel):
+    item = ForeignKey(to=Item, on_delete=CASCADE, related_name='supply_set')
+    count = PositiveIntegerField()
+
+
+class UtilSupply(BaseModel):
+    util = ForeignKey(to=Util, on_delete=CASCADE, related_name='supply_set')
+    count = PositiveIntegerField()
+
+
 class UserItem(BaseModel):
-    item = ForeignKey(to=Item, on_delete=PROTECT, related_name='in_use')
-    user = ForeignKey(to=User, on_delete=PROTECT, related_name='items')
+    item = ForeignKey(to=Item, on_delete=PROTECT, related_name='user_attachment')
+    user = ForeignKey(to=User, on_delete=PROTECT, related_name='item_attachment')
     count = PositiveIntegerField(default=0)
 
     class Meta:
@@ -56,8 +80,8 @@ class UserItem(BaseModel):
 
 
 class UserUtil(BaseModel):
-    util = ForeignKey(to=Util, on_delete=PROTECT, related_name='in_use')
-    user = ForeignKey(to=User, on_delete=PROTECT, related_name='utils')
+    util = ForeignKey(to=Util, on_delete=PROTECT, related_name='user_attachment')
+    user = ForeignKey(to=User, on_delete=PROTECT, related_name='util_attachment')
     count = PositiveIntegerField(default=0)
 
     class Meta:
@@ -67,12 +91,12 @@ class UserUtil(BaseModel):
 
 
 class UserItemSupply(BaseModel):
-    item = ForeignKey(to=Item, on_delete=PROTECT, related_name='supply_set')
+    item = ForeignKey(to=Item, on_delete=PROTECT, related_name='user_supply_set')
     user = ForeignKey(to=User, on_delete=PROTECT, related_name='item_supply_set')
     count = PositiveIntegerField(default=0)
 
 
 class UserUtilSupply(BaseModel):
-    util = ForeignKey(to=Util, on_delete=PROTECT, related_name='supply_set')
+    util = ForeignKey(to=Util, on_delete=PROTECT, related_name='user_supply_set')
     user = ForeignKey(to=User, on_delete=PROTECT, related_name='util_supply_set')
     count = PositiveIntegerField(default=0)
