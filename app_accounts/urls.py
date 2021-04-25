@@ -11,10 +11,10 @@ app_router = DefaultRouter()
 app_router.register('users', UserViewSet, basename='user')
 
 user_router = NestedDefaultRouter(app_router, r'users', lookup='user')
-user_router.register('items', UserItemViewSet, basename='user_item')
-user_router.register('utils', UserUtilViewSet, basename='user_util')
-user_router.register('own_projects', UserOwnProjectViewSet, basename='user_own_project')
-user_router.register('exe_projects', UserExeProjectViewSet, basename='user_exe_project')
+user_router.register('own-projects', UserOwnProjectViewSet, basename='user-own-project')
+user_router.register('exe-projects', UserExeProjectViewSet, basename='user-exe-project')
+user_router.register('items', UserItemViewSet, basename='user-item')
+user_router.register('utils', UserUtilViewSet, basename='user-util')
 
 urlpatterns = [
     path('', include(app_router.urls)),

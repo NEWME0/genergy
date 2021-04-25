@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db import transaction
-from django.db.models import CharField, FloatField, ForeignKey, PositiveIntegerField
+from django.db.models import *
 from django.db.models.deletion import PROTECT
 from django.db.models.query_utils import Q
 from django.db.models.constraints import CheckConstraint, UniqueConstraint
@@ -33,19 +32,6 @@ class Item(BaseModel):
             CheckConstraint(name='item_sell_price', check=Q(price__gte=0))
         ]
 
-    def supply(self, count: int):
-        self.count += count
-        self.save()
-
-    def afford(self, count: int, user: User):
-        user_item, created = UserItem.objects.get_or_create(user=user, item=self)
-        user_item.count += count
-        self.count -= count
-
-        with transaction.atomic():
-            user_item.save()
-            self.save()
-
 
 class Util(BaseModel):
     title = CharField(max_length=255)
@@ -57,21 +43,7 @@ class Util(BaseModel):
             CheckConstraint(name='util_price', check=Q(price__gte=0))
         ]
 
-    def supply(self, count: int):
-        self.count += count
-        self.save()
 
-    def afford(self, count: int, user: User):
-        user_item, created = UserUtil.objects.get_or_create(user=user, util=self)
-        user_item.count += count
-        self.count -= count
-
-        with transaction.atomic():
-            user_item.save()
-            self.save()
-
-
-# Todo: remove
 class UserItem(BaseModel):
     item = ForeignKey(to=Item, on_delete=PROTECT, related_name='in_use')
     user = ForeignKey(to=User, on_delete=PROTECT, related_name='items')
@@ -83,7 +55,6 @@ class UserItem(BaseModel):
         ]
 
 
-# Todo: remove this model
 class UserUtil(BaseModel):
     util = ForeignKey(to=Util, on_delete=PROTECT, related_name='in_use')
     user = ForeignKey(to=User, on_delete=PROTECT, related_name='utils')
@@ -95,13 +66,13 @@ class UserUtil(BaseModel):
         ]
 
 
-class ItemUserAttachment(BaseModel):
-    item = ForeignKey(to=Item, on_delete=PROTECT, related_name='user_attachment_set')
-    user = ForeignKey(to=User, on_delete=PROTECT, related_name='item_attachment_set')
+class UserItemSupply(BaseModel):
+    item = ForeignKey(to=Item, on_delete=PROTECT, related_name='supply_set')
+    user = ForeignKey(to=User, on_delete=PROTECT, related_name='item_supply_set')
     count = PositiveIntegerField(default=0)
 
 
-class UtilUserAttachment(BaseModel):
-    util = ForeignKey(to=Util, on_delete=PROTECT, related_name='user_attachment_set')
-    user = ForeignKey(to=User, on_delete=PROTECT, related_name='util_attachment_set')
+class UserUtilSupply(BaseModel):
+    util = ForeignKey(to=Util, on_delete=PROTECT, related_name='supply_set')
+    user = ForeignKey(to=User, on_delete=PROTECT, related_name='util_supply_set')
     count = PositiveIntegerField(default=0)
