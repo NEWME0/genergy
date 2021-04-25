@@ -3,7 +3,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import FloatField
 from rest_framework.serializers import ModelSerializer
 
-from app_entities.models import Item, Util, Work, UserItem, UserUtil, UserItemSupply, UserUtilSupply
+from app_entities.models import Item, Util, Work, UserItem, UserUtil, UserItemSupply, UserUtilSupply, ItemSupply, \
+    UtilSupply
 
 
 class WorkSerializer(ModelSerializer):
@@ -11,7 +12,7 @@ class WorkSerializer(ModelSerializer):
 
     class Meta:
         model = Work
-        fields = ['id', 'title', 'price']
+        fields = ['id', 'title', 'price', 'created_at', 'updated_at']
 
 
 class ItemSerializer(ModelSerializer):
@@ -20,7 +21,10 @@ class ItemSerializer(ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ['id', 'title', 'price', 'count', 'sell_price']
+        fields = ['id', 'title', 'price', 'count', 'sell_price', 'created_at', 'updated_at']
+        extra_kwargs = {
+            'count': {'read_only': True}
+        }
 
 
 class UtilSerializer(ModelSerializer):
@@ -28,7 +32,42 @@ class UtilSerializer(ModelSerializer):
 
     class Meta:
         model = Util
-        fields = ['id', 'title', 'price', 'count']
+        fields = ['id', 'title', 'price', 'count', 'created_at', 'updated_at']
+        extra_kwargs = {
+            'count': {'read_only': True}
+        }
+
+
+class ItemSupplySerializer(ModelSerializer):
+    class Meta:
+        model = ItemSupply
+        fields = ['item', 'count', 'created_at', 'updated_at']
+
+    @transaction.atomic()
+    def create(self, validated_data):
+        instance = self.Meta.model.objects.create(**validated_data)
+        instance.item.count += instance.count
+        instance.item.save()
+        return instance
+
+    def update(self, instance, validated_data):
+        raise RuntimeError('Updating supplies not allowed.')
+
+
+class UtilSupplySerializer(ModelSerializer):
+    class Meta:
+        model = UtilSupply
+        fields = ['util', 'count', 'created_at', 'updated_at']
+
+    @transaction.atomic()
+    def create(self, validated_data):
+        instance = self.Meta.model.objects.create(**validated_data)
+        instance.util.count += instance.count
+        instance.util.save()
+        return instance
+
+    def update(self, instance, validated_data):
+        raise RuntimeError('Updating supplies not allowed.')
 
 
 class UserItemSerializer(ModelSerializer):
