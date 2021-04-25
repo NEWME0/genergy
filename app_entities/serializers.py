@@ -118,7 +118,7 @@ class UserItemSerializer(ModelSerializer):
 class UserUtilSerializer(ModelSerializer):
     class Meta:
         model = UserUtil
-        fields = ['item', 'user', 'count']
+        fields = ['util', 'user', 'count']
         extra_kwargs = {
             'user': {'read_only': True}
         }
