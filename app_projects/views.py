@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework.mixins import ListModelMixin
 from rest_framework.generics import get_object_or_404
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, GenericViewSet
@@ -43,6 +44,10 @@ class ProjectExerciseViewSet(NestedViewSetMixin, ListModelMixin, CreateManyModel
         context['project'] = get_object_or_404(Project, id=self.kwargs['project_pk'])
         return context
 
+    @extend_schema(request=ProjectExerciseSerializer)
+    def create(self, request, *args, **kwargs):
+        return super(ProjectExerciseViewSet, self).create(request, *args, **kwargs)
+
 
 class ProjectExecutorViewSet(NestedViewSetMixin, ListModelMixin, CreateManyModelMixin, GenericViewSet):
     serializer_class = ProjectExecutorSerializer
@@ -56,6 +61,10 @@ class ProjectExecutorViewSet(NestedViewSetMixin, ListModelMixin, CreateManyModel
         context = super(ProjectExecutorViewSet, self).get_serializer_context()
         context['project'] = get_object_or_404(Project, id=self.kwargs['project_pk'])
         return context
+
+    @extend_schema(request=ProjectExecutorSerializer)
+    def create(self, request, *args, **kwargs):
+        return super(ProjectExecutorViewSet, self).create(request, *args, **kwargs)
 
 
 class ProjectMaterialViewSet(NestedViewSetMixin, ListModelMixin, CreateManyModelMixin, GenericViewSet):
@@ -71,6 +80,10 @@ class ProjectMaterialViewSet(NestedViewSetMixin, ListModelMixin, CreateManyModel
         context['project'] = get_object_or_404(Project, id=self.kwargs['project_pk'])
         context['user'] = self.request.user
         return context
+
+    @extend_schema(request=ProjectMaterialSerializer)
+    def create(self, request, *args, **kwargs):
+        return super(ProjectMaterialViewSet, self).create(request, *args, **kwargs)
 
 
 class UserOwnProjectViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
